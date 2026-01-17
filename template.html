@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>$title$</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <h1>$title$</h1>
+
+    <!-- NEW: button on the right -->
+    <button id="theme-btn" class="theme-btn">dark</button>
+  </div>
+
+  <nav>
+    <a href="/index.html">home</a>
+    <a href="/blog/index.html">blog</a>
+    <a href="/docs/index.html">docs</a>
+  </nav>
+
+  <hr>
+</header>
+
+<main>
+  $body$
+</main>
+
+<footer>
+  <hr>
+  <p>© Joseph Bouryal</p>
+</footer>
+
+<script>
+  const btn = document.getElementById("theme-btn");
+  const saved = localStorage.getItem("theme");
+
+  if (saved === "dark") document.documentElement.classList.add("dark");
+  if (saved === "light") document.documentElement.classList.remove("dark");
+
+  function updateText() {
+    btn.textContent = document.documentElement.classList.contains("dark") ? "light" : "dark";
+  }
+
+  updateText();
+
+  btn.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    const mode = document.documentElement.classList.contains("dark") ? "dark" : "light";
+    localStorage.setItem("theme", mode);
+    updateText();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+:root {
+  --bg: #000000;
+  --fg: #f0f0f0;
+  --accent: #5A7863;
+  --max: 900px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: serif;
+  max-width: var(--max);
+  margin: 1rem auto;
+  padding: 0 1rem;
+  line-height: 1.6;
+}
+
+/* Theme toggle */
+html.dark {
+  --bg: #ffffff;
+  --fg: #000000;
+}
+
+/* Basic layout */
+header, footer {
+  margin-bottom: 1rem;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--fg);
+  margin: 1rem 0;
+}
+
+nav a {
+  margin-right: 1rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* Content links */
+a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-weight: normal;
+  color: var(--accent);
+}
+
+/* Lists */
+ul, ol {
+  margin: 0.5rem 0 0.5rem 1.5rem;
+}
+
+/* Code blocks */
+pre {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 0.75rem;
+  overflow-x: auto;
+}
+
+/* Inline code */
+code {
+  background: rgba(255,255,255,0.05);
+  padding: 0.1rem 0.25rem;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.theme-toggle button {
+  background: transparent;
+  border: 1px solid var(--fg);
+  color: var(--fg);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.theme-toggle button:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--fg);
+  color: var(--fg);
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.theme-btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+}

@@ -1,0 +1,4 @@
+{
+  "buildCommand": "make",
+  "outputDirectory": "public"
+}

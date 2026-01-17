@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Joseph Y. Bouryal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <h1>Joseph Y. Bouryal</h1>
+
+    <!-- NEW: button on the right -->
+    <button id="theme-btn" class="theme-btn">dark</button>
+  </div>
+
+  <nav>
+    <a href="/index.html">home</a>
+    <a href="/blog/index.html">blog</a>
+    <a href="/docs/index.html">docs</a>
+  </nav>
+
+  <hr>
+</header>
+
+<main>
+  <p>Blockchain Engineer</p>
+  <p>I’m a systems engineer specializing in <strong>backend
+  development</strong>, <strong>secure systems</strong>, and
+  <strong>blockchain technologies</strong>. I build reliable, secure
+  backend services, explore decentralised systems, and document what I
+  learn.</p>
+  <p>My work blends practical engineering with deep technical insight —
+  from low-level systems to high-performance distributed apps.</p>
+  <hr />
+  <h3 id="what-i-do">🔭 What I do</h3>
+  <ul>
+  <li><strong>Backend Engineering</strong> — scalable APIs,
+  microservices, high reliability.</li>
+  <li><strong>Blockchain &amp; Cryptography</strong> — smart contracts,
+  consensus, decentralised systems.</li>
+  <li><strong>Security-first mindset</strong> — hardened code, threat
+  modelling, defensive design.</li>
+  <li><strong>Technical writing</strong> — documentation and reflections
+  on engineering craft.</li>
+  </ul>
+  <hr />
+  <h3 id="explore">📚 Explore</h3>
+  <ul>
+  <li>📝 <a href="blog/index.html">Blog →</a> — short, technical
+  articles</li>
+  <li>📖 <a href="docs/index.html">Docs/Notes →</a> — deep dive into
+  concepts I’ve learned</li>
+  <li>💼 <a href="#">Projects →</a> — portfolio of work (coming
+  soon)</li>
+  </ul>
+  <hr />
+  <h3 id="contact">📫 Contact</h3>
+  <ul>
+  <li>📧 Email: <strong>joseph.bouryal@proton.me</strong></li>
+  <li>📧 <a href="https://github.com/0-x-joseph">github</a></li>
+  <li>🔗 <a
+  href="https://www.linkedin.com/in/youssef-bouryal">LinkedIn</a></li>
+  </ul>
+  <p>Thanks for visiting — enjoy the content and feel free to reach
+  out!</p>
+</main>
+
+<footer>
+  <hr>
+  <p>© Joseph Bouryal</p>
+</footer>
+
+<script>
+  const btn = document.getElementById("theme-btn");
+  const saved = localStorage.getItem("theme");
+
+  if (saved === "dark") document.documentElement.classList.add("dark");
+  if (saved === "light") document.documentElement.classList.remove("dark");
+
+  function updateText() {
+    btn.textContent = document.documentElement.classList.contains("dark") ? "light" : "dark";
+  }
+
+  updateText();
+
+  btn.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    const mode = document.documentElement.classList.contains("dark") ? "dark" : "light";
+    localStorage.setItem("theme", mode);
+    updateText();
+  });
+</script>
+
+</body>
+</html>
