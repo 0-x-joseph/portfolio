@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Building a Minimal Ethereum Block Explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <h1>Building a Minimal Ethereum Block Explorer</h1>
+
+    <!-- NEW: button on the right -->
+    <button id="theme-btn" class="theme-btn">dark</button>
+  </div>
+
+  <nav>
+    <a href="/index.html">home</a>
+    <a href="/blog/index.html">blog</a>
+    <a href="/docs/index.html">docs</a>
+  </nav>
+
+  <hr>
+</header>
+
+<main>
+  <h2 id="introduction">Introduction</h2>
+  <p>I just completed Week 3 of the <a
+  href="https://university.alchemy.com/">Alchemy University Ethereum
+  Developer Bootcamp</a>, and I’m excited to share what I built: a fully
+  functional Ethereum Block Explorer with a twist - it’s intentionally
+  minimal, using only black and white with a modular architecture.</p>
+  <p><strong>Check out the code:</strong> <a
+  href="https://github.com/0-x-joseph/block-explorer">GitHub
+  Repository</a></p>
+  <h2 id="whats-a-block-explorer">What’s a Block Explorer?</h2>
+  <p>Before diving in, let me explain what a block explorer is. Think of
+  it as Google for the blockchain. Just like you search the web with
+  Google, you use a block explorer to search and navigate the Ethereum
+  blockchain. You can look up:</p>
+  <ul>
+  <li><strong>Blocks</strong> - containers that hold batches of
+  transactions</li>
+  <li><strong>Transactions</strong> - individual transfers of ETH or
+  smart contract interactions</li>
+  <li><strong>Addresses</strong> - both wallet addresses and smart
+  contracts</li>
+  <li><strong>Balances</strong> - how much ETH an address holds</li>
+  </ul>
+  <p>Sites like Etherscan are the go-to block explorers for Ethereum.
+  Now I understand exactly how they work!</p>
+  <h2 id="the-challenge">The Challenge</h2>
+  <p>Week 3 of Alchemy University focused on the Ethereum JSON-RPC API
+  and blockchain interaction. The challenge was open-ended: build your
+  own block explorer using the Alchemy SDK.</p>
+  <p>I decided to take a different approach - I wanted something
+  <strong>minimal, fast, and maintainable</strong>. No fancy colors, no
+  rounded corners, just pure function with clean aesthetics.</p>
+  <h2 id="design-philosophy-less-is-more">Design Philosophy: Less is
+  More</h2>
+  <p>I deliberately chose a <strong>minimal black and white
+  design</strong>:</p>
+  <ul>
+  <li><strong>Pure black (#000000) and white (#ffffff)</strong> - no
+  gray scales, no colors</li>
+  <li><strong>Square edges</strong> - no rounded corners anywhere</li>
+  <li><strong>No gradients or shadows</strong> - flat design only</li>
+  <li><strong>Clean typography</strong> - proper spacing and
+  hierarchy</li>
+  <li><strong>2px solid borders</strong> - consistent throughout</li>
+  </ul>
+  <p>Why? Because I wanted the <em>data</em> to be the star, not the
+  design. When exploring blockchain data, clarity is everything. The
+  minimal aesthetic keeps you focused on what matters - the blocks,
+  transactions, and addresses.</p>
+  <h2 id="architecture-modular-and-maintainable">Architecture: Modular
+  and Maintainable</h2>
+  <p>I structured the project properly:</p>
+  <pre><code>src/
+├── App.js                    # Main routing
+├── components/
+│   └── Header.js            # Search bar component
+├── pages/
+│   ├── Home.js              # Latest blocks
+│   ├── BlockDetails.js      # Individual block
+│   ├── TransactionDetails.js # Transaction info
+│   └── AddressDetails.js    # Address lookup
+└── utils/
+    └── alchemy.js           # SDK configuration</code></pre>
+  <p>Each page is a separate component with a single responsibility.
+  Want to modify how blocks display? Edit <code>BlockDetails.js</code>.
+  Need to change the search? It’s all in <code>Header.js</code>. This
+  makes the code <strong>easy to understand, test, and
+  extend</strong>.</p>
+  <h2 id="what-i-built">What I Built</h2>
+  <h3 id="home-page---latest-blocks">Home Page - Latest Blocks</h3>
+  <p>When you open the app, you see the 10 most recent blocks on
+  Ethereum mainnet. Each block shows:</p>
+  <ul>
+  <li>Block number (clickable)</li>
+  <li>Transaction count</li>
+  <li>Gas used</li>
+  <li>Timestamp</li>
+  <li>Miner address</li>
+  </ul>
+  <p>It’s a real-time snapshot of the network. Refresh and you’ll see
+  newer blocks.</p>
+  <h3 id="smart-search">Smart Search</h3>
+  <p>The search bar automatically detects what you’re looking for:</p>
+  <ul>
+  <li>Enter a number? It takes you to that block</li>
+  <li>Enter a transaction hash (0x + 64 hex)? Shows the transaction</li>
+  <li>Enter an address (0x + 40 hex)? Displays the address info</li>
+  </ul>
+  <p>No dropdown menus, no radio buttons - it just works.</p>
+  <h3 id="block-details">Block Details</h3>
+  <p>Click any block and you get:</p>
+  <ul>
+  <li>Complete block information (hash, parent hash, gas metrics, base
+  fee)</li>
+  <li>List of all transactions in that block</li>
+  <li>Links to the miner and parent block</li>
+  </ul>
+  <p>You can literally traverse the blockchain by clicking parent
+  hashes, going back through history block by block.</p>
+  <h3 id="transaction-details">Transaction Details</h3>
+  <p>Every transaction shows:</p>
+  <ul>
+  <li>Status (success or failed)</li>
+  <li>Block number</li>
+  <li>From and To addresses</li>
+  <li>Value transferred in ETH</li>
+  <li>Gas limit, gas used, gas price</li>
+  <li>Total transaction fee</li>
+  <li>Input data for contract calls</li>
+  </ul>
+  <h3 id="address-lookup">Address Lookup</h3>
+  <p>Enter any Ethereum address to see:</p>
+  <ul>
+  <li>Current ETH balance</li>
+  <li>Recent transaction history (last 20)</li>
+  <li>All transfer types (external, internal, ERC20, ERC721,
+  ERC1155)</li>
+  </ul>
+  <h2 id="the-tech-stack">The Tech Stack</h2>
+  <p><strong>Frontend:</strong></p>
+  <ul>
+  <li>React 17 with Hooks</li>
+  <li>React Router DOM v5 for navigation</li>
+  <li>Pure CSS (no frameworks)</li>
+  </ul>
+  <p><strong>Blockchain:</strong></p>
+  <ul>
+  <li>Alchemy SDK v2</li>
+  <li>Ethereum Mainnet</li>
+  </ul>
+  <p><strong>Architecture:</strong></p>
+  <ul>
+  <li>Modular components</li>
+  <li>Clean separation of concerns</li>
+  </ul>
+  <p>The Alchemy SDK made everything smooth. Instead of wrestling with
+  raw JSON-RPC calls, I could write clean code like:</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> blockNumber <span class="op">=</span> <span class="cf">await</span> alchemy<span class="op">.</span><span class="at">core</span><span class="op">.</span><span class="fu">getBlockNumber</span>()<span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> block <span class="op">=</span> <span class="cf">await</span> alchemy<span class="op">.</span><span class="at">core</span><span class="op">.</span><span class="fu">getBlockWithTransactions</span>(blockNumber)<span class="op">;</span></span></code></pre></div>
+  <p>Simple, readable, and it just works.</p>
+  <h2 id="what-i-learned">What I Learned</h2>
+  <h3 id="blockchain-structure">Blockchain Structure</h3>
+  <p>I now deeply understand how blocks, transactions, and addresses
+  interconnect. Seeing real mainnet data flow through my app - billions
+  of dollars moving on-chain - made everything click. The blockchain
+  isn’t abstract anymore.</p>
+  <h3 id="gas-economics">Gas Economics</h3>
+  <p>Watching gas prices fluctuate, seeing how different transactions
+  consume gas, understanding base fees vs priority fees - it all became
+  tangible. Theory became practice.</p>
+  <h3 id="react-patterns">React Patterns</h3>
+  <p>Building this forced me to:</p>
+  <ul>
+  <li>Master React Router properly</li>
+  <li>Use Hooks effectively (useState, useEffect)</li>
+  <li>Manage async data flow</li>
+  <li>Handle loading and error states</li>
+  <li>Think in components</li>
+  </ul>
+  <h3 id="code-organization">Code Organization</h3>
+  <p>I learned that good architecture isn’t about clever tricks - it’s
+  about making things <strong>obvious</strong>. When someone (including
+  future me) looks at this code, they should immediately understand
+  where everything is and why.</p>
+  <h3 id="design-restraint">Design Restraint</h3>
+  <p>Working within constraints (black, white, squares only) forced
+  creative solutions. I couldn’t hide bad UX behind fancy animations or
+  gradients. The design had to work on its own merit.</p>
+  <h2 id="the-aha-moments">The “Aha!” Moments</h2>
+  <p><strong>Blocks are literally chained:</strong> When I clicked
+  through parent hashes, it hit me - the blockchain is an actual chain.
+  Each block points to the previous one. You can traverse backwards
+  through the entire history of Ethereum.</p>
+  <p><strong>Transactions have multiple states:</strong> A transaction
+  isn’t just “sent” - it’s pending, then mined, then confirmed. Watching
+  this happen in real-time was eye-opening.</p>
+  <p><strong>The mempool is real:</strong> Seeing pending transactions
+  waiting to be mined made the mempool concept concrete. There’s this
+  pool of waiting transactions, and miners pick which ones to
+  include.</p>
+  <p><strong>Gas makes sense:</strong> By seeing thousands of
+  transactions with different gas prices, I finally understood gas as a
+  market mechanism. Higher gas = faster inclusion.</p>
+  <h2 id="whats-next">What’s Next</h2>
+  <p>I’m not done! Here are features I want to add:</p>
+  <h3 id="technical-enhancements">Technical Enhancements</h3>
+  <ul>
+  <li><strong>WebSocket integration</strong> - Real-time block updates
+  as they’re mined</li>
+  <li><strong>Transaction decoder</strong> - Decode contract
+  interactions into readable format</li>
+  <li><strong>ENS support</strong> - Resolve ENS names like
+  vitalik.eth</li>
+  <li><strong>Contract verification</strong> - Show verified contract
+  source code</li>
+  </ul>
+  <h3 id="ui-improvements">UI Improvements</h3>
+  <ul>
+  <li><strong>Dark mode</strong> - An inverted black/white theme</li>
+  <li><strong>Export functionality</strong> - Download transaction
+  history as CSV</li>
+  <li><strong>Favorites system</strong> - Save addresses you check
+  frequently</li>
+  <li><strong>Comparison view</strong> - Compare two addresses or blocks
+  side-by-side</li>
+  </ul>
+  <h3 id="data-features">Data Features</h3>
+  <ul>
+  <li><strong>NFT display</strong> - Show NFTs owned by an address with
+  images</li>
+  <li><strong>Token balances</strong> - Display all ERC-20 tokens</li>
+  <li><strong>Gas tracker</strong> - Live gas price recommendations</li>
+  <li><strong>Statistics dashboard</strong> - Network metrics and
+  charts</li>
+  </ul>
+  <h2 id="why-this-project-matters">Why This Project Matters</h2>
+  <p>Building a block explorer taught me more about Ethereum than
+  reading documentation ever could. I had to understand:</p>
+  <ul>
+  <li>How blocks are structured</li>
+  <li>What transactions actually contain</li>
+  <li>How gas works in practice</li>
+  <li>What happens when you send ETH</li>
+  </ul>
+  <p>More importantly, I learned about <strong>building
+  production-quality software</strong>:</p>
+  <ul>
+  <li>Modular architecture for maintainability</li>
+  <li>Clean code for readability</li>
+  <li>Minimal design for clarity</li>
+  <li>Proper error handling</li>
+  <li>Responsive design</li>
+  <li>Performance optimization</li>
+  </ul>
+  <p>This isn’t just a learning project - it’s software I can actually
+  use. When I want to look up a transaction, I use my own explorer.</p>
+  <h2 id="try-it-yourself">Try It Yourself</h2>
+  <p>If you’re learning blockchain development, building a block
+  explorer is the perfect project. It forces you to:</p>
+  <ul>
+  <li>Interact with real blockchain data</li>
+  <li>Handle async operations</li>
+  <li>Think about user experience</li>
+  <li>Structure a non-trivial application</li>
+  </ul>
+  <p>The <a href="https://university.alchemy.com/">Alchemy University
+  course</a> provides excellent guidance, and the Alchemy SDK makes it
+  surprisingly approachable. You don’t need to be an expert - just
+  curious and willing to learn.</p>
+  <hr />
+  <p><strong>Want to see the code?</strong> Check out the <a
+  href="https://github.com/0-x-joseph/block-explorer">GitHub
+  repository</a></p>
+  <p>Happy exploring! 🚀</p>
+  <hr />
+</main>
+
+<footer>
+  <hr>
+  <p>© Joseph Bouryal</p>
+</footer>
+
+<script>
+  const btn = document.getElementById("theme-btn");
+  const saved = localStorage.getItem("theme");
+
+  if (saved === "dark") document.documentElement.classList.add("dark");
+  if (saved === "light") document.documentElement.classList.remove("dark");
+
+  function updateText() {
+    btn.textContent = document.documentElement.classList.contains("dark") ? "light" : "dark";
+  }
+
+  updateText();
+
+  btn.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    const mode = document.documentElement.classList.contains("dark") ? "dark" : "light";
+    localStorage.setItem("theme", mode);
+    updateText();
+  });
+</script>
+
+</body>
+</html>
