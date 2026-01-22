@@ -6,6 +6,9 @@ I just completed Week 3 of the [Alchemy University Ethereum Developer Bootcamp](
 
 **Check out the code:** [GitHub Repository](https://github.com/0-x-joseph/block-explorer)
 
+**Check out project** [Project url](https://etherscan.josephbouryal.com)
+
+
 ## What's a Block Explorer?
 
 Before diving in, let me explain what a block explorer is. Think of it as Google for the blockchain. Just like you search the web with Google, you use a block explorer to search and navigate the Ethereum blockchain. You can look up:
@@ -233,5 +236,7 @@ The [Alchemy University course](https://university.alchemy.com/) provides excell
 ---
 
 **Want to see the code?** Check out the [GitHub repository](https://github.com/0-x-joseph/block-explorer)
+
+**Check out the project** [Project url](https://etherscan.josephbouryal.com)
 
 Happy exploring!
