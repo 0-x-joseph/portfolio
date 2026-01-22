@@ -234,6 +234,4 @@ The [Alchemy University course](https://university.alchemy.com/) provides excell
 
 **Want to see the code?** Check out the [GitHub repository](https://github.com/0-x-joseph/block-explorer)
 
-Happy exploring! 🚀
-
----
+Happy exploring!
