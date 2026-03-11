@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <h1>Projects</h1>
+
+    <!-- NEW: button on the right -->
+    <button id="theme-btn" class="theme-btn">dark</button>
+  </div>
+
+  <nav>
+    <a href="/index.html">home</a>
+    <a href="/blog/index.html">blog</a>
+    <a href="/docs/index.html">docs</a>
+    <a href="/projects/index.html">projects</a>
+  </nav>
+
+  <hr>
+</header>
+
+<main>
+  <p>A selection of projects I’ve worked on during hackathons, personal
+  exploration, and my studies at 1337 Coding School (42 Network).</p>
+  <h2 id="freelanceos">FreelanceOS</h2>
+  <p>Client portal for freelancers built during the <strong>Bolt $1M
+  Hackathon</strong>.</p>
+  <p>FreelanceOS helps freelancers manage client projects through a
+  simple portal that tracks milestones, deliverables, updates, and
+  timelines.</p>
+  <p><strong>Stack</strong></p>
+  <ul>
+  <li>Next.js</li>
+  <li>Supabase</li>
+  <li>TailwindCSS</li>
+  </ul>
+  <p><strong>Links</strong></p>
+  <ul>
+  <li><a
+  href="https://github.com/0-x-joseph/freelanceros">GitHub</a></li>
+  <li><a href="https://freelanceros.netlify.app">Live Demo</a></li>
+  </ul>
+  <hr />
+  <h2 id="igudar">Igudar</h2>
+  <p>Fintech marketplace concept developed during the <strong>AIWA
+  Hackathon (Morocco)</strong>.</p>
+  <p>The platform connects <strong>small farmers with buyers</strong>,
+  improving price discovery and enabling more transparent agricultural
+  markets.</p>
+  <p><strong>Highlights</strong></p>
+  <ul>
+  <li>Built with a small team during the hackathon</li>
+  <li>Focused on product architecture and business model</li>
+  <li><strong>2nd place at AIWA Hackathon</strong></li>
+  </ul>
+  <p><strong>Links</strong></p>
+  <ul>
+  <li><a href="https://github.com/0-x-joseph/igudar">GitHub</a></li>
+  <li><a href="https://igudar.tech">Website</a></li>
+  </ul>
+  <hr />
+  <h2 id="ethereum-block-explorer">Ethereum Block Explorer</h2>
+  <p>A minimal <strong>Ethereum blockchain explorer</strong> for
+  querying blocks, transactions, and addresses.</p>
+  <p>Built to better understand <strong>blockchain infrastructure and
+  Web3 data indexing</strong>.</p>
+  <p><strong>Features</strong></p>
+  <ul>
+  <li>Block lookup</li>
+  <li>Transaction lookup</li>
+  <li>Address inspection</li>
+  </ul>
+  <p><strong>Tech</strong></p>
+  <ul>
+  <li>React</li>
+  <li>Alchemy SDK</li>
+  <li>Ethereum JSON-RPC</li>
+  </ul>
+  <p><strong>Links</strong></p>
+  <ul>
+  <li><a
+  href="https://github.com/0-x-joseph/block-explorer">GitHub</a></li>
+  </ul>
+  <hr />
+  <h2 id="sds">42SDS</h2>
+  <p>Adaptation of the <strong>Redis SDS (Simple Dynamic
+  Strings)</strong> library for use in the <strong>42 Network
+  curriculum</strong>.</p>
+  <p>The original SDS implementation used in Redis was refactored to
+  comply with <strong>42 coding standards (Norminette)</strong> so
+  students can use a battle-tested dynamic string library in their
+  projects.</p>
+  <p><strong>Focus</strong></p>
+  <ul>
+  <li>systems programming</li>
+  <li>memory management</li>
+  <li>low-level C</li>
+  </ul>
+  <p><strong>Links</strong></p>
+  <ul>
+  <li><a href="https://github.com/0-x-joseph/42sds">GitHub</a></li>
+  </ul>
+  <hr />
+  <h2 id="other-work">Other Work</h2>
+  <p>Some other things I experiment with:</p>
+  <ul>
+  <li>systems programming projects in C/C++</li>
+  <li>shell implementations</li>
+  <li>networking experiments</li>
+  <li>smart contracts in Solidity</li>
+  </ul>
+  <hr />
+  <p><a href="../index.html">← Back to Home</a></p>
+</main>
+
+<footer>
+  <hr>
+  <p>© Joseph Y. Bouryal</p>
+</footer>
+
+<script>
+  const btn = document.getElementById("theme-btn");
+  const saved = localStorage.getItem("theme");
+
+  if (saved === "dark") document.documentElement.classList.add("dark");
+  if (saved === "light") document.documentElement.classList.remove("dark");
+
+  function updateText() {
+    btn.textContent = document.documentElement.classList.contains("dark") ? "light" : "dark";
+  }
+
+  updateText();
+
+  btn.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    const mode = document.documentElement.classList.contains("dark") ? "dark" : "light";
+    localStorage.setItem("theme", mode);
+    updateText();
+  });
+</script>
+
+</body>
+</html>
