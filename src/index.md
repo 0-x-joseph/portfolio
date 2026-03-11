@@ -1,33 +1,46 @@
 % Joseph Y. Bouryal
-Blockchain Engineer
+Software Architecture Student — 1337 Coding School (42 Network)
 
-I’m a systems engineer specializing in **backend development**, **secure systems**, and **blockchain technologies**. I build reliable, secure backend services, explore decentralised systems, and document what I learn.
+I’m a software architecture student focused on **systems programming, backend engineering, and blockchain technologies**.
 
-My work blends practical engineering with deep technical insight — from low-level systems to high-performance distributed apps.
+My background combines **Applied Finance** with **low-level software engineering**, which led me to 1337 (42 Network) where I work on systems projects, networking, and backend infrastructure.
 
----
-
-### 🔭 What I do
-
-- **Backend Engineering** — scalable APIs, microservices, high reliability.
-- **Blockchain & Cryptography** — smart contracts, consensus, decentralised systems.
-- **Security-first mindset** — hardened code, threat modelling, defensive design.
-- **Technical writing** — documentation and reflections on engineering craft.
+I enjoy building reliable software, understanding how systems work under the hood, and experimenting with decentralized technologies.
 
 ---
 
-### 📚 Explore
+### Projects
 
-- 📝 [Blog →](blog/index.html) — short, technical articles
-- 📖 [Docs/Notes →](docs/index.html) — deep dive into concepts I’ve learned
-- 💼 [Projects →](#) — portfolio of work (coming soon)
+- **FreelanceOS** — client portal built during the Bolt $1M hackathon  
+- **Igudar** — fintech marketplace idea (2nd place at AIWA Hackathon)  
+- **Ethereum Block Explorer** — minimal explorer for querying Ethereum data  
+- **42SDS** — Redis SDS string library adapted for the 42 curriculum  
+
+More details → [Projects](projects/index.html)
 
 ---
 
-### 📫 Contact
+### Interests
 
-- 📧 Email: **joseph.bouryal@proton.me**
-- 📧 [github](https://github.com/0-x-joseph)
-- 🔗 [LinkedIn](https://www.linkedin.com/in/youssef-bouryal)
+- **Systems Programming** — C, UNIX, networking
+- **Backend Engineering** — APIs, databases, scalable services
+- **Blockchain** — smart contracts and decentralized systems
+- **Security** — binary exploitation (pwn)
 
-Thanks for visiting — enjoy the content and feel free to reach out!
+---
+
+### Writing
+
+I document things I learn while building systems.
+
+- [Blog →](blog/index.html)
+- [Docs/Notes →](docs/index.html)
+
+---
+
+### Contact
+
+Email: **joseph.bouryal@proton.me**
+
+[GitHub](https://github.com/0-x-joseph)  
+[LinkedIn](https://www.linkedin.com/in/youssef-bouryal)
