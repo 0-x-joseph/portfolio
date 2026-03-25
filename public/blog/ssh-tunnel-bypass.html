@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <h1></h1>
+
+    <!-- NEW: button on the right -->
+    <button id="theme-btn" class="theme-btn">dark</button>
+  </div>
+
+  <nav>
+    <a href="/index.html">home</a>
+    <a href="/blog/index.html">blog</a>
+    <a href="/docs/index.html">docs</a>
+    <a href="/projects/index.html">projects</a>
+  </nav>
+
+  <hr>
+</header>
+
+<main>
+  <h1 id="bypassing-network-restrictions-with-ssh-tunneling">Bypassing
+  Network Restrictions with SSH Tunneling</h1>
+  <h2 id="introduction">Introduction</h2>
+  <p>I recently ran into a frustrating problem: my university network
+  blocks certain websites and services. While I understand the
+  reasoning, sometimes I legitimately need access to resources that fall
+  under their overly broad filters, such as github, netflix, spotify and
+  so much more.</p>
+  <p>I tried using a VPN service but it’s also blocked, so I decided to
+  build my own solution using a free-tier AWS EC2 instance and SSH. What
+  I ended up with is a lightweight, secure SOCKS5 proxy that tunnels my
+  traffic through an external server.</p>
+  <h2 id="the-problem-network-restrictions">The Problem: Network
+  Restrictions</h2>
+  <p>University networks, corporate environments, and even some public
+  WiFi networks impose restrictions on internet access. Common blocks
+  include:</p>
+  <ul>
+  <li><strong>Port 22 (SSH)</strong> - blocked entirely.</li>
+  <li><strong>Gaming ports</strong> - 27015-27030 (Steam), 80/443 (web)
+  filtered for gaming services</li>
+  <li><strong>VPN protocols</strong> - OpenVPN (1194), WireGuard
+  (51820), IKEv2 (500/4500)</li>
+  <li><strong>Specific domains</strong> - Social media, streaming,
+  certain cloud services</li>
+  <li><strong>DNS filtering</strong> - Redirecting or blocking DNS
+  queries for restricted sites</li>
+  </ul>
+  <p>My network blocks most VPN protocols and many popular proxy
+  services. But SSH over port 443? That stays open because it looks like
+  regular HTTPS traffic.</p>
+  <h2 id="the-solution-ssh-dynamic-port-forwarding">The Solution: SSH
+  Dynamic Port Forwarding</h2>
+  <p>SSH has a powerful feature called <strong>dynamic port
+  forwarding</strong> that creates a SOCKS5 proxy on your local machine.
+  All traffic sent through this proxy is forwarded through the SSH
+  connection to the remote server.</p>
+  <pre><code>Your Machine ---[SSH Tunnel]---&gt; EC2 Server ---&gt; Internet
+     |                              |
+  Local SOCKS5                   Acts as your
+  proxy (port 1080)              exit node</code></pre>
+  <p>The beauty is that it’s: - <strong>Encrypted</strong> - SSH
+  provides strong encryption - <strong>Stealthy</strong> - Looks like
+  regular SSH traffic (especially on port 443) - <strong>No special
+  client needed</strong> - Most apps support SOCKS5 proxies -
+  <strong>Cost-effective</strong> - AWS free tier covers everything</p>
+  <h2 id="step-by-step-setup">Step-by-Step Setup</h2>
+  <h3 id="launch-an-ec2-instance-free-tier">1. Launch an EC2 Instance
+  (Free Tier)</h3>
+  <p>AWS Free Tier gives you 750 hours per month of t3.micro or t2.micro
+  instances. Here’s what I used:</p>
+  <div class="sourceCode" id="cb2"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># AWS Console settings:</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> AMI: Ubuntu 24.04 LTS</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> Instance type: t3.micro <span class="er">(</span><span class="ex">2</span> vCPU, 1 GB RAM<span class="kw">)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> Security group: Allow inbound SSH <span class="er">(</span><span class="ex">port</span> 22<span class="kw">)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">-</span> Key pair: Download and save your .pem file</span></code></pre></div>
+  <h3 id="configure-security-group">2. Configure Security Group</h3>
+  <p>In the EC2 console, edit your security group to allow:</p>
+  <table>
+  <thead>
+  <tr>
+  <th>Type</th>
+  <th>Protocol</th>
+  <th>Port</th>
+  <th>Source</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>SSH</td>
+  <td>TCP</td>
+  <td>22</td>
+  <td>0.0.0.0/0</td>
+  </tr>
+  </tbody>
+  </table>
+  <p>For better security, restrict the source to your university’s IP
+  range if you know it.</p>
+  <h3 id="connect-and-verify">3. Connect and Verify</h3>
+  <div class="sourceCode" id="cb3"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure your key file has correct permissions</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 400 your-key.pem</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to your instance</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: If you used ubuntu in the ec2 the user is usualy &quot;ubuntu&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-i</span> your-key.pem <span class="op">&lt;</span>user<span class="op">&gt;</span>@<span class="op">&lt;</span>public-ip<span class="op">&gt;</span></span></code></pre></div>
+  <h3 id="create-the-tunnel">4. Create the Tunnel</h3>
+  <p>Now comes the magic. On your <strong>local machine</strong>, create
+  the SSH tunnel:</p>
+  <div class="sourceCode" id="cb4"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Standard tunnel on port 1080</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-D</span> 1080 <span class="at">-N</span> <span class="at">-f</span> <span class="at">-p</span> 443 <span class="at">-i</span> <span class="st">&quot;your-key.pem&quot;</span> <span class="op">&lt;</span>user<span class="op">&gt;</span>@<span class="op">&lt;</span>public-ip<span class="op">&gt;</span></span></code></pre></div>
+  <p>Let’s break down those flags:</p>
+  <table>
+  <thead>
+  <tr>
+  <th>Flag</th>
+  <th>Meaning</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td><code>-D 1080</code></td>
+  <td>Dynamic port forwarding (SOCKS5) on local port 1080</td>
+  </tr>
+  <tr>
+  <td><code>-f</code></td>
+  <td>Fork to background after authentication</td>
+  </tr>
+  <tr>
+  <td><code>-C</code></td>
+  <td>Enable compression (faster browsing)</td>
+  </tr>
+  <tr>
+  <td><code>-q</code></td>
+  <td>Quiet mode (suppress warnings)</td>
+  </tr>
+  <tr>
+  <td><code>-N</code></td>
+  <td>No remote command execution (just forwarding)</td>
+  </tr>
+  </tbody>
+  </table>
+  <h3 id="using-port-443-to-bypass-firewalls">5. Using Port 443 to
+  Bypass Firewalls</h3>
+  <p>If your network blocks port 22, configure your EC2 to accept SSH on
+  port 443:</p>
+  <div class="sourceCode" id="cb5"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># On EC2, edit SSH config</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> vim /etc/ssh/sshd_config</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add this line</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Port</span> 443</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Restart SSH</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart sshd</span></code></pre></div>
+  <p>Now connect using port 443:</p>
+  <div class="sourceCode" id="cb6"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-D</span> 1080 <span class="at">-N</span> <span class="at">-f</span> <span class="at">-p</span> 443 <span class="at">-i</span> <span class="st">&quot;your-key.pem&quot;</span> <span class="op">&lt;</span>user<span class="op">&gt;</span>@<span class="op">&lt;</span>public-ip<span class="op">&gt;</span></span></code></pre></div>
+  <p>From the outside, this looks exactly like HTTPS traffic.</p>
+  <h2 id="configuring-applications-to-use-the-tunnel">Configuring
+  Applications to Use the Tunnel</h2>
+  <h3 id="browser-foxyproxy">Browser: FoxyProxy</h3>
+  <p><strong>FoxyProxy</strong> is the cleanest way to handle browser
+  proxy settings. Here’s how I set it up:</p>
+  <ol type="1">
+  <li>Install FoxyProxy extension (Firefox or Chrome)</li>
+  <li>Click the FoxyProxy icon → Options → Add New Proxy</li>
+  <li>Configure:</li>
+  </ol>
+  <table>
+  <thead>
+  <tr>
+  <th>Setting</th>
+  <th>Value</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>Title</td>
+  <td>SSH Tunnel</td>
+  </tr>
+  <tr>
+  <td>Proxy Type</td>
+  <td>SOCKS5</td>
+  </tr>
+  <tr>
+  <td>IP Address</td>
+  <td>127.0.0.1</td>
+  </tr>
+  <tr>
+  <td>Port</td>
+  <td>1080</td>
+  </tr>
+  </tbody>
+  </table>
+  <ol start="4" type="1">
+  <li>Under <strong>URL Patterns</strong>, you can:
+  <ul>
+  <li><p>Use <strong>“Use this proxy for all URLs”</strong> for
+  everything</p></li>
+  <li><p>Or add patterns for specific sites:</p>
+  <pre><code>*.twitter.com
+*.youtube.com
+*.github.com</code></pre></li>
+  </ul></li>
+  <li>Enable FoxyProxy and select your SSH Tunnel profile</li>
+  </ol>
+  <p>The beauty of FoxyProxy is that you can toggle the proxy on/off
+  with one click. No digging through browser settings every time.</p>
+  <h3 id="terminal-proxychains">Terminal: ProxyChains</h3>
+  <p>For command-line tools, <strong>proxychains</strong> is the answer.
+  It forces any application through your SOCKS5 proxy.</p>
+  <p><strong>Installation:</strong></p>
+  <div class="sourceCode" id="cb8"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># I use arch btw! </span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-S</span> proxychains-ng</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># On macOS</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install proxychains-ng</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># On debian based distros (ubuntu, kali)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install proxychains4</span></code></pre></div>
+  <p><strong>Configuration:</strong> Edit
+  <code>/etc/proxychains4.conf</code> (or
+  <code>~/.proxychains/proxychains.conf</code>):</p>
+  <div class="sourceCode" id="cb9"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Uncomment strict_chain (recommended)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">strict_chain</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Comment out dynamic_chain if it&#39;s uncommented</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#dynamic_chain</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># At the bottom, configure your proxy</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[ProxyList]</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="ex">socks5</span> 127.0.0.1 1080</span></code></pre></div>
+  <p><strong>Usage:</strong></p>
+  <div class="sourceCode" id="cb10"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run any command through the tunnel</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">proxychains</span> curl ifconfig.me</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">proxychains</span> ssh user@some-server</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ex">proxychains</span> git clone https://github.com/some/repo.git</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># For pacman (package installation)</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> proxychains pacman <span class="at">-Syu</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> proxychains4 pacman <span class="at">-S</span> package-name</span></code></pre></div>
+  <p><strong>Pro tip:</strong> Create an alias in your
+  <code>~/.bashrc</code>:</p>
+  <div class="sourceCode" id="cb11"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">alias</span> pc=<span class="st">&#39;proxychains&#39;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">alias</span> pc-ssh=<span class="st">&#39;proxychains ssh&#39;</span></span></code></pre></div>
+  <p>Then just use <code>pc curl ifconfig.me</code> or
+  <code>pc-ssh user@host</code>.</p>
+  <h3 id="phone-http-injector-android">Phone: HTTP Injector
+  (Android)</h3>
+  <p>This is where things get really cool. I can route my <strong>entire
+  phone’s traffic</strong> through the same SSH tunnel using
+  <strong>HTTP Injector</strong>. It’s like having a VPN powered by my
+  own EC2 server.</p>
+  <p><strong>Setup on Android:</strong></p>
+  <ol type="1">
+  <li>Install <strong>HTTP Injector</strong> from the Play Store</li>
+  <li>Go to <code>Settings</code>, under <code>Tunnel</code> click
+  <code>Secure Shell (SSH)</code>:</li>
+  </ol>
+  <table>
+  <thead>
+  <tr>
+  <th>Setting</th>
+  <th>Value</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>SSH Host</td>
+  <td>your-ec2-public-dns or ec2 public ip</td>
+  </tr>
+  <tr>
+  <td>SSH Port</td>
+  <td>22 (or 443 if you changed it)</td>
+  </tr>
+  <tr>
+  <td>Username</td>
+  <td><user></td>
+  </tr>
+  <tr>
+  <td>Auth Method</td>
+  <td>Private Key</td>
+  </tr>
+  <tr>
+  <td>Private Key</td>
+  <td>Your .pem file content (paste it)</td>
+  </tr>
+  </tbody>
+  </table>
+  <ol start="3" type="1">
+  <li>Under <code>Connection</code>:</li>
+  </ol>
+  <table>
+  <thead>
+  <tr>
+  <th>Setting</th>
+  <th>Value</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>Local Port</td>
+  <td>1080</td>
+  </tr>
+  </tbody>
+  </table>
+  <ol start="4" type="1">
+  <li>Enable <strong>“Start SSH Tunnel”</strong> and hit
+  <strong>Start</strong></li>
+  </ol>
+  <p>That’s it. Once connected, HTTP Injector creates a VPN interface on
+  your phone that routes all traffic through your EC2 server. The phone
+  sees it as a regular VPN, but underneath it’s your SSH tunnel.</p>
+  <p><strong>What works over this setup:</strong> -
+  <strong>Browsers</strong> - Chrome, Firefox, any mobile browser -
+  <strong>Apps</strong> - Instagram, Twitter, YouTube, Spotify -
+  basically any app that respects the system VPN -
+  <strong>Terminal</strong> - git, pacman and any terminal command that
+  uses network</p>
+  <h3 id="testing-both-setups">Testing Both Setups</h3>
+  <p><strong>Test the tunnel is working:</strong></p>
+  <div class="sourceCode" id="cb12"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># On laptop</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">proxychains4</span> curl <span class="at">-s</span> ifconfig.me</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Should show EC2 IP</span></span></code></pre></div>
+  <p><strong>On phone:</strong> - Open Chrome, search “what is my ip” -
+  Should show your EC2 instance’s IP, not your mobile carrier’s IP</p>
+  <h2 id="my-multi-device-workflow">My Multi-Device Workflow</h2>
+  <p>Here’s how I use this setup across all my devices:</p>
+  <h3 id="laptop">Laptop</h3>
+  <ol type="1">
+  <li><p><strong>Start the tunnel:</strong></p>
+  <div class="sourceCode" id="cb13"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">autossh</span> <span class="at">-M</span> 0 <span class="at">-o</span> <span class="st">&quot;ServerAliveInterval 30&quot;</span> <span class="at">-D</span> 1080 <span class="at">-f</span> <span class="at">-N</span> aws-tunnel</span></code></pre></div></li>
+  <li><p><strong>Enable FoxyProxy</strong> in browser (one
+  click)</p></li>
+  <li><p><strong>For terminal work:</strong></p>
+  <div class="sourceCode" id="cb14"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">proxychains4</span> git clone https://github.com/blocked/repo.git</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> proxychains4 apt install package-name</span></code></pre></div></li>
+  </ol>
+  <h3 id="phone">Phone</h3>
+  <ol type="1">
+  <li><strong>Open HTTP Injector</strong></li>
+  <li><strong>Tap Start</strong> (takes 5 seconds)</li>
+  <li><strong>Use any app</strong> - everything routes through the
+  tunnel automatically</li>
+  </ol>
+  <h3 id="tablet-if-i-had-one">Tablet (if I had one)</h3>
+  <p>Same setup as phone - HTTP Injector works great on Android tablets
+  too.</p>
+  <h2 id="keep-the-tunnel-alive">Keep the Tunnel Alive</h2>
+  <p>SSH connections can drop. Here’s how I handle it:</p>
+  <p><strong>Option A: SSH Keepalive (in
+  <code>~/.ssh/config</code>)</strong></p>
+  <pre><code>Host aws-tunnel
+    HostName your-ec2-public-dns
+    User ubuntu
+    IdentityFile ~/.ssh/your-key.pem
+    DynamicForward 1080
+    ServerAliveInterval 60
+    ServerAliveCountMax 3</code></pre>
+  <p>Then simply: <code>ssh aws-tunnel</code></p>
+  <p><strong>Option B: autossh (more robust)</strong></p>
+  <div class="sourceCode" id="cb16"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install autossh</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install autossh</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with monitoring</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">autossh</span> <span class="at">-M</span> 0 <span class="at">-o</span> <span class="st">&quot;ServerAliveInterval 30&quot;</span> <span class="dt">\</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">-o</span> <span class="st">&quot;ServerAliveCountMax 3&quot;</span> <span class="dt">\</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">-D</span> 1080 <span class="at">-f</span> <span class="at">-N</span> aws-tunnel</span></code></pre></div>
+  <p><strong>Option C: HTTP Injector handles reconnections
+  automatically</strong></p>
+  <h2 id="cost-management">Cost Management</h2>
+  <p>The AWS Free Tier is generous, but don’t let your instance run when
+  you don’t need it:</p>
+  <div class="sourceCode" id="cb17"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop the instance from CLI (if you have AWS CLI configured)</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> ec2 stop-instances <span class="at">--instance-ids</span> i-1234567890abcdef0</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or just log into AWS Console and stop it</span></span></code></pre></div>
+  <p>I created a simple script <code>toggle-tunnel.sh</code>:</p>
+  <div class="sourceCode" id="cb18"><pre
+  class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="va">INSTANCE_ID</span><span class="op">=</span><span class="st">&quot;i-1234567890abcdef0&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">case</span> <span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span> <span class="kw">in</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="ss">start</span><span class="kw">)</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">aws</span> ec2 start-instances <span class="at">--instance-ids</span> <span class="va">$INSTANCE_ID</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Starting instance... wait 2 minutes then connect&quot;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">;;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="ss">stop</span><span class="kw">)</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">aws</span> ec2 stop-instances <span class="at">--instance-ids</span> <span class="va">$INSTANCE_ID</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Instance stopping&quot;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">;;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="ss">status</span><span class="kw">)</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">aws</span> ec2 describe-instances <span class="at">--instance-ids</span> <span class="va">$INSTANCE_ID</span> <span class="dt">\</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">--query</span> <span class="st">&#39;Reservations[0].Instances[0].State.Name&#39;</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">;;</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="cf">esac</span></span></code></pre></div>
+  <h2 id="security-considerations">Security Considerations</h2>
+  <p><strong>What this DOES NOT protect against:</strong> - Network
+  administrators seeing that you’re using SSH (though they can’t see the
+  content) - Tracking via browser fingerprints, cookies, or logged-in
+  accounts - Malware or compromised endpoints</p>
+  <p><strong>What it DOES provide:</strong> - Encryption between your
+  devices and EC2 - Bypass of content filters - Your EC2 IP becomes your
+  public-facing IP</p>
+  <p><strong>Best practices:</strong> - Keep your EC2 instance updated
+  (<code>sudo apt update &amp;&amp; sudo apt upgrade</code>) - Use
+  key-based authentication (no passwords) - Consider using a
+  non-standard SSH port (like 443) - Monitor your AWS billing to catch
+  unexpected charges - <strong>Never share your private key</strong> -
+  keep it safe</p>
+  <h2 id="troubleshooting">Troubleshooting</h2>
+  <p><strong>Connection refused:</strong> - Check security group rules -
+  Verify SSH is running on the port you specified - Confirm your local
+  network isn’t blocking the port</p>
+  <p><strong>Slow browsing:</strong> - Use <code>-C</code> flag for
+  compression - Choose an EC2 region geographically close to you -
+  t3.micro has burstable CPU, which is usually fine for browsing</p>
+  <p><strong>DNS leaks:</strong> - In FoxyProxy, enable “Proxy DNS” in
+  the proxy settings - For Chrome: use
+  <code>--proxy-server="socks5://127.0.0.1:1080" --host-resolver-rules="MAP * ~NOTFOUND"</code></p>
+  <p><strong>Proxychains not working:</strong> - Make sure the tunnel is
+  running (<code>ps aux | grep ssh</code>) - Verify proxychains config
+  has correct proxy details - Try
+  <code>proxychains4 curl -v ifconfig.me</code> to see verbose
+  output</p>
+  <p><strong>HTTP Injector not connecting:</strong> - Verify your EC2
+  instance is running - Check that the private key is pasted correctly
+  (including the <code>-----BEGIN RSA PRIVATE KEY-----</code> lines) -
+  Try connecting over mobile data vs WiFi to isolate network issues -
+  Ensure your EC2 security group allows inbound SSH from all IPs (or at
+  least your phone’s IP)</p>
+  <h2 id="why-this-setup-works-well">Why This Setup Works Well</h2>
+  <p>This combination has become my go-to solution across all
+  devices:</p>
+  <table>
+  <colgroup>
+  <col style="width: 28%" />
+  <col style="width: 21%" />
+  <col style="width: 50%" />
+  </colgroup>
+  <thead>
+  <tr>
+  <th>Device</th>
+  <th>Tool</th>
+  <th>Why It Works</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td><strong>Laptop</strong></td>
+  <td>FoxyProxy + Proxychains</td>
+  <td>Toggle easily, per-app control</td>
+  </tr>
+  <tr>
+  <td><strong>Phone</strong></td>
+  <td>HTTP Injector</td>
+  <td>System-wide VPN-like experience</td>
+  </tr>
+  <tr>
+  <td><strong>Server</strong></td>
+  <td>AWS t3.micro (Ubuntu 24.04)</td>
+  <td>Free tier, stable, well-documented</td>
+  </tr>
+  </tbody>
+  </table>
+  <p>The best part? I learned actual skills. I now understand: - SSH
+  tunneling internals - AWS EC2 management - SOCKS5 proxy mechanics -
+  How to debug network issues - Cross-device networking</p>
+  <h2 id="alternatives">Alternatives</h2>
+  <p>While SSH tunneling is a great starting point, you can take things
+  further with more sophisticated protocols like <strong>VLESS +
+  REALITY</strong> or <strong>VMess + WebSocket + CDN</strong>. These
+  modern solutions offer better traffic obfuscation, making your
+  connection virtually indistinguishable from regular HTTPS traffic.
+  They also solve the IP-blocking problem by hiding your server behind
+  Cloudflare’s massive network—if your EC2 IP gets blocked, the CDN
+  shields it completely.</p>
+  <h3 id="why-go-beyond-ssh">Why Go Beyond SSH?</h3>
+  <table>
+  <colgroup>
+  <col style="width: 49%" />
+  <col style="width: 50%" />
+  </colgroup>
+  <thead>
+  <tr>
+  <th>Limitation of SSH Tunnel</th>
+  <th>How Modern Protocols Help</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>SSH traffic can be identified and throttled</td>
+  <td>Mimics regular HTTPS traffic using TLS</td>
+  </tr>
+  <tr>
+  <td>Your EC2 IP is exposed and can be blocked</td>
+  <td>Hide behind Cloudflare CDN (hundreds of IPs)</td>
+  </tr>
+  <tr>
+  <td>No built-in traffic camouflage</td>
+  <td>VLESS + REALITY removes TLS fingerprints</td>
+  </tr>
+  <tr>
+  <td>Single port, predictable pattern</td>
+  <td>WebSocket multiplexing over port 443</td>
+  </tr>
+  </tbody>
+  </table>
+  <h3 id="resources-to-explore">Resources to Explore</h3>
+  <ul>
+  <li><p><a
+  href="https://www.digitalocean.com/community/tutorials/ssh-port-forwarding">SSH
+  Port Forwarding: Local, Remote, and Dynamic Explained</a></p></li>
+  <li><p><a
+  href="https://aws.amazon.com/getting-started/hands-on/free-tier-ec2-instance-setup/">AWS
+  Free Tier EC2 Instance Setup</a></p></li>
+  <li><p><a href="https://aws.amazon.com/ec2/getting-started/">Amazon
+  EC2 Getting Started</a></p></li>
+  <li><p><a href="https://youtu.be/4TYffXhDYTo">X-UI Setup Guide (Video
+  Tutorial)</a></p></li>
+  <li><p><a
+  href="https://github.com/maou0/xui-install-configure-script">X-UI
+  Installation Script Repository</a></p></li>
+  </ul>
+  <p><strong>Hiding Your Server with Cloudflare (The Game
+  Changer)</strong> - <a
+  href="https://vpnymous.com/v2ray-ws-cdn-setup-hiding-your-server-ip-with-cloudflare-practical-guide/">V2Ray
+  WS + CDN Setup: Hiding Your Server IP with Cloudflare</a> — Practical
+  guide to making your server invisible behind Cloudflare’s network - <a
+  href="https://github.com/xiaochaib/chaiwiki/wiki/%E4%B8%80%E9%94%AE%E6%90%AD%E5%BB%BAV2Ray%EF%BC%88XRay%EF%BC%89--Vision-REALITY%E5%8D%8F%E8%AE%AE%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E8%8A%82%E7%82%B9%EF%BC%81">VLESS
+  Reality Protocol Guide</a></p>
+  <h2 id="conclusion">Conclusion</h2>
+  <p>This whole project started because my university network blocked
+  everything—VPNs, gaming, even some development resources. I could’ve
+  just complained about it, but instead, I built something.</p>
+  <p>And honestly? That’s what I love about this field. Every
+  restriction is just an invitation to learn something new. Setting up
+  this SSH tunnel taught me more about networking than any textbook
+  could. I learned how SSH actually works under the hood—not just as a
+  login tool but as a full-fledged tunneling protocol. I learned how to
+  spin up an EC2 instance without touching the AWS console. I figured
+  out how to make my phone route through the same tunnel with HTTP
+  Injector, which felt like magic the first time it worked.</p>
+  <p>But the best part? This setup is <em>mine</em>. Not some VPN
+  service with questionable privacy policies. Not a free proxy that
+  probably logs everything. Just my server, my key, my rules.</p>
+  <p>If you’re reading this and thinking about setting it up yourself,
+  here’s my advice: <strong>just start</strong>. Don’t wait until you
+  understand everything. Launch that EC2 instance, run the SSH command,
+  and when it fails (because it will the first time), read the error
+  message and figure it out. That’s how you actually learn.</p>
+  <p>And when you get it working—when you see your browser show your EC2
+  IP instead of your university’s—you’ll feel like you just hacked the
+  matrix. (Spoiler: you didn’t, but it feels that way.)</p>
+  <p>Now go build something. Break it. Fix it. Learn from it. That’s
+  what this whole experience is about.</p>
+  <hr />
+  <p><strong>Questions? Found a better way to do this?</strong> Hit me
+  up on <a href="https://github.com/0-x-joseph">GitHub</a> or <a
+  href="https://www.linkedin.com/in/youssef-bouryal">LinkedIn</a>. I’m
+  always curious to see how others solve these problems.</p>
+</main>
+
+<footer>
+  <hr>
+  <p>© Joseph Y. Bouryal</p>
+</footer>
+
+<script>
+  const btn = document.getElementById("theme-btn");
+  const saved = localStorage.getItem("theme");
+
+  if (saved === "dark") document.documentElement.classList.add("dark");
+  if (saved === "light") document.documentElement.classList.remove("dark");
+
+  function updateText() {
+    btn.textContent = document.documentElement.classList.contains("dark") ? "light" : "dark";
+  }
+
+  updateText();
+
+  btn.addEventListener("click", () => {
+    document.documentElement.classList.toggle("dark");
+    const mode = document.documentElement.classList.contains("dark") ? "dark" : "light";
+    localStorage.setItem("theme", mode);
+    updateText();
+  });
+</script>
+
+</body>
+</html>
