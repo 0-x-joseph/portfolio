@@ -1,7 +1,7 @@
 :root {
   --bg: #000000;
   --fg: #f0f0f0;
-  --accent: #5A7863;
+  --accent: var(--fg);
   --max: 900px;
 }
 
