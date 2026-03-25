@@ -40,7 +40,7 @@ I document things I learn while building systems.
 
 ### Contact
 
-Email: **joseph.bouryal@proton.me**
+Email: **me@josephbouryal.com**
 
 [GitHub](https://github.com/0-x-joseph)  
 [LinkedIn](https://www.linkedin.com/in/youssef-bouryal)

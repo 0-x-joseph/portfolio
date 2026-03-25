@@ -26,3 +26,5 @@ assets:
 
 clean:
 	rm -rf $(OUT)
+
+re: clean all

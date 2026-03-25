@@ -2,8 +2,11 @@
   --bg: #000000;
   --fg: #f0f0f0;
   --accent: var(--fg);
-  --max: 900px;
+  --max: 90vw;
+  --max-large: 1200px;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap');
 
 html, body {
   margin: 0;
@@ -13,11 +16,12 @@ html, body {
 }
 
 body {
-  font-family: serif;
-  max-width: var(--max);
+  font-family: 'Libre Baskerville', 'Times New Roman', serif;
+  width: var(--max);
+  max-width: var(--max-large);
   margin: 1rem auto;
   padding: 0 1rem;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* Theme toggle */
