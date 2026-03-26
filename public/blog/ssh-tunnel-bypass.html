@@ -88,7 +88,7 @@
   <p>In the EC2 console, edit your security group to allow:</p>
   <table>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Type</th>
   <th>Protocol</th>
   <th>Port</th>
@@ -96,7 +96,7 @@
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td>SSH</td>
   <td>TCP</td>
   <td>22</td>
@@ -123,29 +123,29 @@
   <p>Let’s break down those flags:</p>
   <table>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Flag</th>
   <th>Meaning</th>
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td><code>-D 1080</code></td>
   <td>Dynamic port forwarding (SOCKS5) on local port 1080</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td><code>-f</code></td>
   <td>Fork to background after authentication</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td><code>-C</code></td>
   <td>Enable compression (faster browsing)</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td><code>-q</code></td>
   <td>Quiet mode (suppress warnings)</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td><code>-N</code></td>
   <td>No remote command execution (just forwarding)</td>
   </tr>
@@ -180,25 +180,25 @@
   </ol>
   <table>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Setting</th>
   <th>Value</th>
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td>Title</td>
   <td>SSH Tunnel</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td>Proxy Type</td>
   <td>SOCKS5</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td>IP Address</td>
   <td>127.0.0.1</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td>Port</td>
   <td>1080</td>
   </tr>
@@ -275,29 +275,29 @@
   </ol>
   <table>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Setting</th>
   <th>Value</th>
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td>SSH Host</td>
   <td>your-ec2-public-dns or ec2 public ip</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td>SSH Port</td>
   <td>22 (or 443 if you changed it)</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td>Username</td>
   <td><user></td>
   </tr>
-  <tr>
+  <tr class="even">
   <td>Auth Method</td>
   <td>Private Key</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td>Private Key</td>
   <td>Your .pem file content (paste it)</td>
   </tr>
@@ -308,13 +308,13 @@
   </ol>
   <table>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Setting</th>
   <th>Value</th>
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td>Local Port</td>
   <td>1080</td>
   </tr>
@@ -461,24 +461,24 @@
   <col style="width: 50%" />
   </colgroup>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Device</th>
   <th>Tool</th>
   <th>Why It Works</th>
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td><strong>Laptop</strong></td>
   <td>FoxyProxy + Proxychains</td>
   <td>Toggle easily, per-app control</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td><strong>Phone</strong></td>
   <td>HTTP Injector</td>
   <td>System-wide VPN-like experience</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td><strong>Server</strong></td>
   <td>AWS t3.micro (Ubuntu 24.04)</td>
   <td>Free tier, stable, well-documented</td>
@@ -504,25 +504,25 @@
   <col style="width: 50%" />
   </colgroup>
   <thead>
-  <tr>
+  <tr class="header">
   <th>Limitation of SSH Tunnel</th>
   <th>How Modern Protocols Help</th>
   </tr>
   </thead>
   <tbody>
-  <tr>
+  <tr class="odd">
   <td>SSH traffic can be identified and throttled</td>
   <td>Mimics regular HTTPS traffic using TLS</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td>Your EC2 IP is exposed and can be blocked</td>
   <td>Hide behind Cloudflare CDN (hundreds of IPs)</td>
   </tr>
-  <tr>
+  <tr class="odd">
   <td>No built-in traffic camouflage</td>
   <td>VLESS + REALITY removes TLS fingerprints</td>
   </tr>
-  <tr>
+  <tr class="even">
   <td>Single port, predictable pattern</td>
   <td>WebSocket multiplexing over port 443</td>
   </tr>
@@ -608,6 +608,11 @@
     updateText();
   });
 </script>
+
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 
 </body>
 </html>
